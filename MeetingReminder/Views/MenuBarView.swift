@@ -112,7 +112,7 @@ struct MenuBarView: View {
 
             Spacer()
 
-            if let url = event.videoLink {
+            if let url = event.videoLink, url.scheme == "https" || url.scheme == "http" {
                 Button {
                     NSWorkspace.shared.open(url)
                 } label: {

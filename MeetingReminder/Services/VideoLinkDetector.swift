@@ -42,8 +42,8 @@ struct VideoLinkDetector {
             }
 
             let range = NSRange(text.startIndex..., in: text)
-            if let match = regex.firstMatch(in: text, range: range) {
-                let matchRange = Range(match.range, in: text)!
+            if let match = regex.firstMatch(in: text, range: range),
+               let matchRange = Range(match.range, in: text) {
                 var urlString = String(text[matchRange])
 
                 // Clean trailing punctuation that might have been captured

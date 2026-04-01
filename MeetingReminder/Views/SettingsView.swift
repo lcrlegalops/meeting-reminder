@@ -184,7 +184,7 @@ struct SettingsView: View {
                     try SMAppService.mainApp.unregister()
                 }
             } catch {
-                print("Failed to \(enabled ? "enable" : "disable") launch at login: \(error)")
+                // Launch-at-login toggle failed — silently ignore
             }
         }
     }

@@ -34,7 +34,7 @@ final class CalendarService: ObservableObject {
                     startAutoRefresh()
                 }
             } catch {
-                print("Calendar access error: \(error)")
+                // Calendar access denied or error — no action needed
             }
         } else {
             let granted = await withCheckedContinuation { continuation in
@@ -57,7 +57,7 @@ final class CalendarService: ObservableObject {
 
     func fetchEvents() {
         let now = Date()
-        let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: now)!
+        guard let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: now) else { return }
 
         let predicate = eventStore.predicateForEvents(
             withStart: now.addingTimeInterval(-300), // include events that just started
@@ -101,11 +101,7 @@ final class CalendarService: ObservableObject {
     }
 
     private func updateAuthorizationStatus() {
-        if #available(macOS 14.0, *) {
-            authorizationStatus = EKEventStore.authorizationStatus(for: .event)
-        } else {
-            authorizationStatus = EKEventStore.authorizationStatus(for: .event)
-        }
+        authorizationStatus = EKEventStore.authorizationStatus(for: .event)
     }
 
     private func startAutoRefresh() {

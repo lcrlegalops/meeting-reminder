@@ -25,7 +25,6 @@ struct MeetingReminderApp: App {
             .onAppear {
                 Task {
                     await calendarService.requestAccess()
-                    calendarService.startMonitoring()
                     meetingMonitor.start()
                     overlayCoordinator.startObserving()
                 }

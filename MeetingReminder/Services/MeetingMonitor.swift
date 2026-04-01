@@ -24,7 +24,7 @@ final class MeetingMonitor: ObservableObject {
 
     func start() {
         checkTimer?.invalidate()
-        checkTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
+        checkTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.checkUpcomingMeetings()
             }
@@ -52,6 +52,7 @@ final class MeetingMonitor: ObservableObject {
 
     func joinMeeting() {
         guard let event = activeOverlayEvent, let url = event.videoLink else { return }
+        guard url.scheme == "https" || url.scheme == "http" else { return }
         NSWorkspace.shared.open(url)
         dismiss()
     }
