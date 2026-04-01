@@ -5,6 +5,10 @@ struct MenuBarView: View {
     @ObservedObject var meetingMonitor: MeetingMonitor
     @Environment(\.dismiss) private var dismiss
 
+    @AppStorage("showMeetings")     private var showMeetings: Bool = true
+    @AppStorage("showAppointments") private var showAppointments: Bool = true
+    @AppStorage("showTasks")        private var showTasks: Bool = true
+
     private var upcomingEvents: [MeetingEvent] {
         calendarService.events.filter { $0.timeUntilStart > -300 }
     }
@@ -38,7 +42,7 @@ struct MenuBarView: View {
             .buttonStyle(.plain)
         }
         .padding(12)
-        .frame(width: 280)
+        .frame(width: 300)
     }
 
     // MARK: - Sections
@@ -72,7 +76,7 @@ struct MenuBarView: View {
 
     private var noEventsSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label("No upcoming meetings", systemImage: "checkmark.circle")
+            Label("Nothing coming up", systemImage: "checkmark.circle")
                 .font(.headline)
             Text("You're free for the rest of the day")
                 .font(.caption)
@@ -82,14 +86,14 @@ struct MenuBarView: View {
 
     private var eventListSection: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Upcoming Meetings")
+            Text("Up Next")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.bottom, 4)
 
-            ForEach(upcomingEvents.prefix(5)) { event in
+            ForEach(upcomingEvents.prefix(8)) { event in
                 eventRow(event)
-                if event.id != upcomingEvents.prefix(5).last?.id {
+                if event.id != upcomingEvents.prefix(8).last?.id {
                     Divider().padding(.vertical, 2)
                 }
             }
@@ -99,7 +103,13 @@ struct MenuBarView: View {
     // MARK: - Event Row
 
     private func eventRow(_ event: MeetingEvent) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
+            // Type accent bar
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(typeColor(event.type))
+                .frame(width: 3)
+                .padding(.trailing, 8)
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
                     .font(.system(size: 13, weight: .medium))
@@ -125,21 +135,48 @@ struct MenuBarView: View {
 
             Spacer()
 
-            if let url = event.videoLink, url.scheme == "https" || url.scheme == "http" {
-                Button {
-                    NSWorkspace.shared.open(url)
-                } label: {
-                    Image(systemName: "video.fill")
-                        .font(.system(size: 11))
-                        .foregroundColor(.accentColor)
+            HStack(spacing: 6) {
+                // Bell: shown when reminder is active for this type
+                if isMonitored(event) {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 9))
+                        .foregroundColor(typeColor(event.type).opacity(0.7))
                 }
-                .buttonStyle(.borderless)
-                .help("Join \(VideoLinkDetector.serviceName(for: url))")
+
+                // Join button for meetings
+                if let url = event.videoLink, url.scheme == "https" || url.scheme == "http" {
+                    Button {
+                        NSWorkspace.shared.open(url)
+                    } label: {
+                        Image(systemName: "video.fill")
+                            .font(.system(size: 11))
+                            .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(.borderless)
+                    .help("Join \(VideoLinkDetector.serviceName(for: url))")
+                }
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 3)
     }
 
+    // MARK: - Helpers
+
+    private func typeColor(_ type: MeetingEventType) -> Color {
+        switch type {
+        case .meeting:     return .blue
+        case .appointment: return .purple
+        case .task:        return .orange
+        }
+    }
+
+    private func isMonitored(_ event: MeetingEvent) -> Bool {
+        switch event.type {
+        case .meeting:     return showMeetings
+        case .appointment: return showAppointments
+        case .task:        return showTasks
+        }
+    }
 }
 
 private struct PreferencesButton: View {

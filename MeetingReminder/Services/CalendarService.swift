@@ -92,26 +92,11 @@ final class CalendarService: ObservableObject {
                 let isTask = VideoLinkDetector.isGoogleTask(ekEvent)
                 return MeetingEvent(from: ekEvent, videoLink: videoLink, isTask: isTask)
             }
-            .filter { isEventTypeEnabled($0.type) }
 
         events = calendarEvents.sorted { $0.startDate < $1.startDate }
 
         availableCalendars = eventStore.calendars(for: .event)
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-    }
-
-    // MARK: - Event type filter helpers
-
-    private func isEventTypeEnabled(_ type: MeetingEventType) -> Bool {
-        let key: String
-        switch type {
-        case .meeting:     key = "showMeetings"
-        case .appointment: key = "showAppointments"
-        case .task:        key = "showTasks"
-        }
-        // Default true when key not set
-        guard UserDefaults.standard.object(forKey: key) != nil else { return true }
-        return UserDefaults.standard.bool(forKey: key)
     }
 
     // MARK: - Private

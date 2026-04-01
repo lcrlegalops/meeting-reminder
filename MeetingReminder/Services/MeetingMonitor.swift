@@ -82,6 +82,9 @@ final class MeetingMonitor: ObservableObject {
         for event in calendarService.events {
             let timeUntil = event.startDate.timeIntervalSince(now)
 
+            // Skip if this event type has reminders disabled
+            guard isEventTypeEnabled(event.type) else { continue }
+
             // Skip if already shown
             guard !shownEventIDs.contains(event.id) else { continue }
 
@@ -113,6 +116,17 @@ final class MeetingMonitor: ObservableObject {
            UserDefaults.standard.bool(forKey: "soundEnabled") {
             NSSound.beep()
         }
+    }
+
+    private func isEventTypeEnabled(_ type: MeetingEventType) -> Bool {
+        let key: String
+        switch type {
+        case .meeting:     key = "showMeetings"
+        case .appointment: key = "showAppointments"
+        case .task:        key = "showTasks"
+        }
+        guard UserDefaults.standard.object(forKey: key) != nil else { return true }
+        return UserDefaults.standard.bool(forKey: key)
     }
 }
 
