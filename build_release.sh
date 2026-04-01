@@ -71,6 +71,10 @@ fi
 # Update version in bundle
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP_PATH/Contents/Info.plist"
 
+# Re-sign to fix "Info.plist not bound" issue from Xcode ad-hoc export
+echo "→ Re-signing..."
+codesign --force --deep --sign - "$APP_PATH"
+
 # Package as ZIP (preserves code signature if signed)
 echo "→ Creating $ZIP_NAME..."
 cd "$EXPORT_PATH"
