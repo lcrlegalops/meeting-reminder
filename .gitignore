@@ -7,6 +7,11 @@ xcuserdata/
 # Build
 build/
 DerivedData/
+.build_release/
+*.zip
+MeetingReminder.app/
+MeetingReminder.xcodeproj/project.xcworkspace/xcshareddata/
+MeetingReminder.xcodeproj/project.xcworkspace/contents.xcworkspacedata
 
 # Icon generation
 __pycache__/
