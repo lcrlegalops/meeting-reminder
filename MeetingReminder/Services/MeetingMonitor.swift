@@ -15,7 +15,8 @@ final class MeetingMonitor: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     var reminderMinutes: Int {
-        UserDefaults.standard.integer(forKey: "reminderMinutes").clamped(to: 1...30, default: 5)
+        guard UserDefaults.standard.object(forKey: "reminderMinutes") != nil else { return 5 }
+        return UserDefaults.standard.integer(forKey: "reminderMinutes").clamped(to: 0...30)
     }
 
     init(calendarService: CalendarService) {
@@ -46,6 +47,13 @@ final class MeetingMonitor: ObservableObject {
     func snooze(minutes: Int = 1) {
         guard let event = activeOverlayEvent else { return }
         snoozedEvents[event.id] = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        shownEventIDs.remove(event.id)
+        dismiss()
+    }
+
+    func snoozeUntilStart() {
+        guard let event = activeOverlayEvent else { return }
+        snoozedEvents[event.id] = event.startDate
         shownEventIDs.remove(event.id)
         dismiss()
     }
@@ -109,8 +117,7 @@ final class MeetingMonitor: ObservableObject {
 }
 
 extension Int {
-    func clamped(to range: ClosedRange<Int>, default defaultValue: Int) -> Int {
-        if self == 0 { return defaultValue }
+    func clamped(to range: ClosedRange<Int>) -> Int {
         return Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
     }
 }

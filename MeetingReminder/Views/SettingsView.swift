@@ -38,6 +38,7 @@ struct SettingsView: View {
         Form {
             Section {
                 Picker("Remind me before meetings:", selection: $reminderMinutes) {
+                    Text("On time").tag(0)
                     Text("1 minute").tag(1)
                     Text("2 minutes").tag(2)
                     Text("5 minutes").tag(5)

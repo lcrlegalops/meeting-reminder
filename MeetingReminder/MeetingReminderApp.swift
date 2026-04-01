@@ -60,7 +60,8 @@ final class OverlayCoordinator: ObservableObject {
                         event: event,
                         onDismiss: { [weak self] in self?.monitor.dismiss() },
                         onSnooze: { [weak self] in self?.monitor.snooze() },
-                        onJoin: { [weak self] in self?.monitor.joinMeeting() }
+                        onJoin: { [weak self] in self?.monitor.joinMeeting() },
+                        onRemindOnTime: { [weak self] in self?.monitor.snoozeUntilStart() }
                     )
                 } else {
                     windowController.close()

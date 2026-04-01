@@ -5,6 +5,7 @@ struct OverlayView: View {
     let onDismiss: () -> Void
     let onSnooze: () -> Void
     let onJoin: () -> Void
+    let onRemindOnTime: () -> Void
 
     @AppStorage("overlayBackground") private var overlayBackground: String = "dark"
     @State private var appeared = false
@@ -68,19 +69,35 @@ struct OverlayView: View {
                         .keyboardShortcut(.return, modifiers: [])
                     }
 
-                    Button(action: onSnooze) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "clock.arrow.circlepath")
-                            Text("Snooze 1 min")
+                    if event.timeUntilStart > 90 {
+                        Button(action: onRemindOnTime) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "bell.badge")
+                                Text("Remind me on time")
+                            }
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 14)
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(12)
                         }
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 14)
-                        .background(Color.white.opacity(0.2))
-                        .cornerRadius(12)
+                        .buttonStyle(.plain)
+                    } else {
+                        Button(action: onSnooze) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "clock.arrow.circlepath")
+                                Text("Snooze 1 min")
+                            }
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 14)
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(12)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
 
                     Button(action: onDismiss) {
                         HStack(spacing: 8) {
