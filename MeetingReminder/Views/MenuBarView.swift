@@ -44,17 +44,30 @@ struct MenuBarView: View {
     // MARK: - Sections
 
     private var calendarAccessSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Label("Calendar Access Required", systemImage: "calendar.badge.exclamationmark")
                 .font(.headline)
-            Text("Grant access in System Settings → Privacy & Security → Calendars")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Button("Request Access") {
-                Task { await calendarService.requestAccess() }
+
+            if calendarService.authorizationStatus == .denied {
+                Text("Access was denied. Open System Settings to allow it.")
+                    .font(.callout)
+                    .foregroundColor(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Open System Settings") {
+                    NSWorkspace.shared.open(
+                        URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
+                    )
+                }
+            } else {
+                Text("Click below to allow calendar access.")
+                    .font(.callout)
+                    .foregroundColor(.primary)
+                Button("Request Access") {
+                    Task { await calendarService.requestAccess() }
+                }
             }
-            .controlSize(.small)
         }
+        .padding(.bottom, 4)
     }
 
     private var noEventsSection: some View {
