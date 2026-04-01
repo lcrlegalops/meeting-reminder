@@ -61,6 +61,16 @@ struct VideoLinkDetector {
         return nil
     }
 
+    static func isGoogleTask(_ event: EKEvent) -> Bool {
+        // Google Tasks sync as EKEvents with a tasks.google.com link in the notes
+        if let notes = event.notes, notes.contains("tasks.google.com") {
+            return true
+        }
+        // Fallback: calendar explicitly named "Tasks" under a Google/CalDAV account
+        return event.calendar.title.lowercased() == "tasks"
+            && event.calendar.source.sourceType == .calDAV
+    }
+
     static func serviceName(for url: URL) -> String {
         let host = url.host?.lowercased() ?? ""
         if host.contains("zoom.us") { return "Zoom" }

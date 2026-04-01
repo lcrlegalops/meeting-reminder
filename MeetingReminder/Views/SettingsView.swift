@@ -1,4 +1,3 @@
-import EventKit
 import ServiceManagement
 import SwiftUI
 
@@ -150,31 +149,15 @@ struct SettingsView: View {
             }
 
             Section {
-                if calendarService.reminderAccessGranted {
-                    Toggle(isOn: $showTasks) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("Tasks", systemImage: "checkmark.circle")
-                            Text("Google Tasks and Apple Reminders with a specific due time")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .onChange(of: showTasks) { _ in calendarService.fetchEvents() }
-                } else {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Label("Tasks", systemImage: "checkmark.circle")
-                            Text("Requires Reminders access to show Google Tasks")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        Button("Grant Access") {
-                            Task { await calendarService.requestReminderAccess() }
-                        }
-                        .controlSize(.small)
+                Toggle(isOn: $showTasks) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label("Tasks", systemImage: "checkmark.circle")
+                        Text("Google Tasks (synced via Google Calendar)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
+                .onChange(of: showTasks) { _ in calendarService.fetchEvents() }
             }
         }
         .formStyle(.grouped)

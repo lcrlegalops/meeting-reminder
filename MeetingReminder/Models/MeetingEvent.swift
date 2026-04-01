@@ -64,7 +64,7 @@ struct MeetingEvent: Identifiable, Equatable {
         lhs.id == rhs.id
     }
 
-    init(from ekEvent: EKEvent, videoLink: URL?) {
+    init(from ekEvent: EKEvent, videoLink: URL?, isTask: Bool = false) {
         // Use eventIdentifier + startDate to uniquely identify recurring event occurrences
         let baseID = ekEvent.eventIdentifier ?? UUID().uuidString
         let dateStamp = ISO8601DateFormatter().string(from: ekEvent.startDate)
@@ -76,19 +76,11 @@ struct MeetingEvent: Identifiable, Equatable {
         self.calendarColor = ""
         self.videoLink = videoLink
         self.isAllDay = ekEvent.isAllDay
-        self.type = videoLink != nil ? .meeting : .appointment
-    }
-
-    init(from reminder: EKReminder, dueDate: Date) {
-        self.id = "task_\(reminder.calendarItemIdentifier)"
-        self.title = reminder.title ?? "Task"
-        self.startDate = dueDate
-        self.endDate = dueDate.addingTimeInterval(3600)
-        self.calendar = reminder.calendar.title
-        self.calendarColor = ""
-        self.videoLink = nil
-        self.isAllDay = false
-        self.type = .task
+        if isTask {
+            self.type = .task
+        } else {
+            self.type = videoLink != nil ? .meeting : .appointment
+        }
     }
 
     init(id: String, title: String, startDate: Date, endDate: Date,

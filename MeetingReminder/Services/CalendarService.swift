@@ -6,7 +6,6 @@ import Foundation
 final class CalendarService: ObservableObject {
     @Published var events: [MeetingEvent] = []
     @Published var authorizationStatus: EKAuthorizationStatus = .notDetermined
-    @Published var reminderAuthorizationStatus: EKAuthorizationStatus = .notDetermined
     @Published var availableCalendars: [EKCalendar] = []
 
     private let eventStore = EKEventStore()
@@ -51,24 +50,6 @@ final class CalendarService: ObservableObject {
         }
     }
 
-    func requestReminderAccess() async {
-        if #available(macOS 14.0, *) {
-            do {
-                _ = try await eventStore.requestFullAccessToReminders()
-            } catch {
-                // Reminder access denied or error — no action needed
-            }
-        } else {
-            _ = await withCheckedContinuation { continuation in
-                eventStore.requestAccess(to: .reminder) { granted, _ in
-                    continuation.resume(returning: granted)
-                }
-            }
-        }
-        reminderAuthorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
-        fetchEvents()
-    }
-
     func startMonitoring() {
         fetchEvents()
         startAutoRefresh()
@@ -108,7 +89,8 @@ final class CalendarService: ObservableObject {
             }
             .map { ekEvent -> MeetingEvent in
                 let videoLink = VideoLinkDetector.detectLink(in: ekEvent)
-                return MeetingEvent(from: ekEvent, videoLink: videoLink)
+                let isTask = VideoLinkDetector.isGoogleTask(ekEvent)
+                return MeetingEvent(from: ekEvent, videoLink: videoLink, isTask: isTask)
             }
             .filter { isEventTypeEnabled($0.type) }
 
@@ -116,39 +98,6 @@ final class CalendarService: ObservableObject {
 
         availableCalendars = eventStore.calendars(for: .event)
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-
-        // Fetch tasks async and merge
-        if isEventTypeEnabled(.task) && reminderAccessGranted {
-            Task {
-                await fetchRemindersAndMerge(existingEvents: events, endOfDay: endOfDay, now: now)
-            }
-        }
-    }
-
-    private func fetchRemindersAndMerge(existingEvents: [MeetingEvent], endOfDay: Date, now: Date) async {
-        let calendars = eventStore.calendars(for: .reminder)
-        let predicate = eventStore.predicateForReminders(in: calendars.isEmpty ? nil : calendars)
-
-        let reminders: [EKReminder] = await withCheckedContinuation { continuation in
-            eventStore.fetchReminders(matching: predicate) { result in
-                continuation.resume(returning: result ?? [])
-            }
-        }
-
-        let taskEvents = reminders.compactMap { reminder -> MeetingEvent? in
-            guard !reminder.isCompleted else { return nil }
-            guard let components = reminder.dueDateComponents,
-                  components.hour != nil, // only tasks with a specific time
-                  let dueDate = Calendar.current.date(from: components) else { return nil }
-            guard dueDate >= now.addingTimeInterval(-300) && dueDate <= endOfDay else { return nil }
-            return MeetingEvent(from: reminder, dueDate: dueDate)
-        }
-
-        let existingIDs = Set(existingEvents.map { $0.id })
-        let newTasks = taskEvents.filter { !existingIDs.contains($0.id) }
-        guard !newTasks.isEmpty else { return }
-
-        events = (existingEvents + newTasks).sorted { $0.startDate < $1.startDate }
     }
 
     // MARK: - Event type filter helpers
@@ -165,19 +114,10 @@ final class CalendarService: ObservableObject {
         return UserDefaults.standard.bool(forKey: key)
     }
 
-    var reminderAccessGranted: Bool {
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        if #available(macOS 14.0, *) {
-            return status == .fullAccess
-        }
-        return status == .authorized
-    }
-
     // MARK: - Private
 
     private func updateAuthorizationStatus() {
         authorizationStatus = EKEventStore.authorizationStatus(for: .event)
-        reminderAuthorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
     }
 
     private func startAutoRefresh() {
