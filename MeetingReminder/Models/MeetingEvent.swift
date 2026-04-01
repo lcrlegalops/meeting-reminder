@@ -1,6 +1,12 @@
 import EventKit
 import Foundation
 
+enum MeetingEventType: String {
+    case meeting     // EKEvent with a detected video link (Zoom, Meet, etc.)
+    case appointment // EKEvent without a video link
+    case task        // EKReminder (Google Tasks, Apple Reminders)
+}
+
 struct MeetingEvent: Identifiable, Equatable {
     let id: String
     let title: String
@@ -10,6 +16,7 @@ struct MeetingEvent: Identifiable, Equatable {
     let calendarColor: String
     let videoLink: URL?
     let isAllDay: Bool
+    let type: MeetingEventType
 
     var timeUntilStart: TimeInterval {
         startDate.timeIntervalSinceNow
@@ -69,11 +76,25 @@ struct MeetingEvent: Identifiable, Equatable {
         self.calendarColor = ""
         self.videoLink = videoLink
         self.isAllDay = ekEvent.isAllDay
+        self.type = videoLink != nil ? .meeting : .appointment
+    }
+
+    init(from reminder: EKReminder, dueDate: Date) {
+        self.id = "task_\(reminder.calendarItemIdentifier)"
+        self.title = reminder.title ?? "Task"
+        self.startDate = dueDate
+        self.endDate = dueDate.addingTimeInterval(3600)
+        self.calendar = reminder.calendar.title
+        self.calendarColor = ""
+        self.videoLink = nil
+        self.isAllDay = false
+        self.type = .task
     }
 
     init(id: String, title: String, startDate: Date, endDate: Date,
          calendar: String, calendarColor: String = "",
-         videoLink: URL? = nil, isAllDay: Bool = false) {
+         videoLink: URL? = nil, isAllDay: Bool = false,
+         type: MeetingEventType = .appointment) {
         self.id = id
         self.title = title
         self.startDate = startDate
@@ -82,5 +103,6 @@ struct MeetingEvent: Identifiable, Equatable {
         self.calendarColor = calendarColor
         self.videoLink = videoLink
         self.isAllDay = isAllDay
+        self.type = type
     }
 }

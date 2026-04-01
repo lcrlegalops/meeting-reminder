@@ -6,6 +6,9 @@ struct SettingsView: View {
     @AppStorage("reminderMinutes") private var reminderMinutes: Int = 5
     @AppStorage("soundEnabled") private var soundEnabled: Bool = true
     @AppStorage("overlayBackground") private var overlayBackground: String = "dark"
+    @AppStorage("showMeetings") private var showMeetings: Bool = true
+    @AppStorage("showAppointments") private var showAppointments: Bool = true
+    @AppStorage("showTasks") private var showTasks: Bool = true
     @ObservedObject var calendarService: CalendarService
 
     @State private var launchAtLogin = false
@@ -23,12 +26,17 @@ struct SettingsView: View {
                     Label("Appearance", systemImage: "paintbrush")
                 }
 
+            eventTypesTab
+                .tabItem {
+                    Label("Event Types", systemImage: "line.3.horizontal.decrease.circle")
+                }
+
             calendarsTab
                 .tabItem {
                     Label("Calendars", systemImage: "calendar")
                 }
         }
-        .frame(width: 460, height: 380)
+        .frame(width: 460, height: 420)
         .onAppear {
             loadSettings()
         }
@@ -114,6 +122,62 @@ struct SettingsView: View {
 
             Spacer()
         }
+        .padding()
+    }
+
+    private var eventTypesTab: some View {
+        Form {
+            Section {
+                Toggle(isOn: $showMeetings) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label("Meetings", systemImage: "video.fill")
+                        Text("Events with a Zoom or Google Meet link")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .onChange(of: showMeetings) { _ in calendarService.fetchEvents() }
+
+                Toggle(isOn: $showAppointments) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Label("Appointments", systemImage: "calendar")
+                        Text("Calendar events without a video link")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .onChange(of: showAppointments) { _ in calendarService.fetchEvents() }
+            }
+
+            Section {
+                if calendarService.reminderAccessGranted {
+                    Toggle(isOn: $showTasks) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Tasks", systemImage: "checkmark.circle")
+                            Text("Google Tasks and Apple Reminders with a specific due time")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .onChange(of: showTasks) { _ in calendarService.fetchEvents() }
+                } else {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label("Tasks", systemImage: "checkmark.circle")
+                            Text("Requires Reminders access to show Google Tasks")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Button("Grant Access") {
+                            Task { await calendarService.requestReminderAccess() }
+                        }
+                        .controlSize(.small)
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
         .padding()
     }
 

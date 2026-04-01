@@ -125,4 +125,26 @@ final class MeetingEventTests: XCTestCase {
         let event2 = MeetingEvent(id: "b", title: "A", startDate: Date(), endDate: Date(), calendar: "X")
         XCTAssertNotEqual(event1, event2)
     }
+
+    // MARK: - MeetingEventType
+
+    func testDefaultTypeIsAppointment() {
+        let event = makeEvent(startingIn: 5)
+        XCTAssertEqual(event.type, .appointment)
+    }
+
+    func testMeetingTypeWithVideoLink() {
+        let url = URL(string: "https://meet.google.com/abc-defg-hij")!
+        let event = MeetingEvent(id: "m", title: "Standup", startDate: Date(), endDate: Date(),
+                                 calendar: "Work", videoLink: url, type: .meeting)
+        XCTAssertEqual(event.type, .meeting)
+        XCTAssertNotNil(event.videoLink)
+    }
+
+    func testTaskType() {
+        let event = MeetingEvent(id: "t", title: "Write report", startDate: Date(), endDate: Date(),
+                                 calendar: "Tasks", type: .task)
+        XCTAssertEqual(event.type, .task)
+        XCTAssertNil(event.videoLink)
+    }
 }

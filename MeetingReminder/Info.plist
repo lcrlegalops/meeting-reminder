@@ -24,5 +24,9 @@
 	<string>Meeting Reminder needs access to your calendars to show upcoming meeting notifications and provide quick-join links for video conferences.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>Meeting Reminder needs access to your calendars to show upcoming meeting notifications and provide quick-join links for video conferences.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Meeting Reminder needs access to your reminders and tasks to show upcoming task notifications alongside your calendar events.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Meeting Reminder needs access to your reminders and tasks to show upcoming task notifications alongside your calendar events.</string>
 </dict>
 </plist>
