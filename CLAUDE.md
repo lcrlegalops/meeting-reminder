@@ -30,9 +30,9 @@ MeetingReminder/
 │   └── VideoLinkDetector.swift     # Regex detection: Zoom, Meet, Teams, Webex, Slack in notes/URL/location
 ├── Views/
 │   ├── MenuBarView.swift           # Window-style popover: event list, preferences button, quit
-│   ├── OverlayWindow.swift         # NSPanel at .screenSaver level, covers all screens
+│   ├── OverlayWindow.swift         # NSPanel at .screenSaver level, covers selected screens (enabledScreenIDs)
 │   ├── OverlayView.swift           # Full-screen SwiftUI: title, countdown, Join/Snooze/Dismiss buttons
-│   └── SettingsView.swift          # Tabs: General, Appearance (overlay backgrounds), Calendars
+│   └── SettingsView.swift          # Tabs: General, Appearance (overlay backgrounds), Displays, Event Types, Calendars
 ├── Resources/Assets.xcassets       # App icon (generated via generate_icon.py)
 ├── Info.plist                      # LSUIElement=true (no Dock icon), calendar usage descriptions
 └── MeetingReminder.entitlements    # App sandbox + calendar access
@@ -55,6 +55,7 @@ MeetingReminder/
 | `soundEnabled` | Bool | true | Play alert sound with overlay |
 | `overlayBackground` | String | "dark" | Background style (dark/blue/purple/gradient/red/green/nightOcean/electric/cyber) |
 | `enabledCalendarIDs` | [String] | [] | Calendar IDs to monitor (empty = all) |
+| `enabledScreenIDs` | [String] | [] | Display UUIDs that show the overlay (empty or none connected = all) |
 
 ## Icon Generation
 

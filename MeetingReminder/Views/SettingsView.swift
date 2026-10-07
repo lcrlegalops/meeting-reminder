@@ -1,3 +1,4 @@
+import AppKit
 import ServiceManagement
 import SwiftUI
 
@@ -12,6 +13,8 @@ struct SettingsView: View {
 
     @State private var launchAtLogin = false
     @State private var enabledCalendarIDs: Set<String> = []
+    @State private var connectedScreens: [NSScreen] = []
+    @State private var enabledScreenIDs: Set<String> = []
 
     var body: some View {
         TabView {
@@ -23,6 +26,11 @@ struct SettingsView: View {
             appearanceTab
                 .tabItem {
                     Label("Appearance", systemImage: "paintbrush")
+                }
+
+            displaysTab
+                .tabItem {
+                    Label("Displays", systemImage: "display.2")
                 }
 
             eventTypesTab
@@ -38,6 +46,9 @@ struct SettingsView: View {
         .frame(width: 460, height: 420)
         .onAppear {
             loadSettings()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
+            connectedScreens = NSScreen.screens
         }
     }
 
@@ -120,6 +131,33 @@ struct SettingsView: View {
             }
 
             Spacer()
+        }
+        .padding()
+    }
+
+    private var displaysTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Show the reminder on these displays:")
+                .font(.headline)
+
+            List {
+                ForEach(connectedScreens, id: \.stableID) { screen in
+                    let isOnlyChecked = checkedScreenIDs == [screen.stableID]
+                    Toggle(isOn: binding(forScreen: screen.stableID)) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(screen.localizedName)
+                            Text(screenDetails(screen))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .disabled(isOnlyChecked)
+                }
+            }
+
+            Text("At least one display must be selected. If a selected display is disconnected, the reminder shows on all displays.")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .padding()
     }
@@ -209,9 +247,46 @@ struct SettingsView: View {
         )
     }
 
+    /// Connected screens that are effectively checked. Empty or stale selection = all.
+    private var checkedScreenIDs: Set<String> {
+        let connectedIDs = Set(connectedScreens.map(\.stableID))
+        let selected = enabledScreenIDs.intersection(connectedIDs)
+        return selected.isEmpty ? connectedIDs : selected
+    }
+
+    private func binding(forScreen screenID: String) -> Binding<Bool> {
+        Binding(
+            get: { checkedScreenIDs.contains(screenID) },
+            set: { enabled in
+                var ids = checkedScreenIDs
+                if enabled {
+                    ids.insert(screenID)
+                } else {
+                    ids.remove(screenID)
+                }
+                guard !ids.isEmpty else { return }
+                enabledScreenIDs = ids
+                saveScreenSelection()
+            }
+        )
+    }
+
+    private func screenDetails(_ screen: NSScreen) -> String {
+        let size = "\(Int(screen.frame.width)) × \(Int(screen.frame.height))"
+        return screen == NSScreen.screens.first ? "Main · \(size)" : size
+    }
+
+    private func saveScreenSelection() {
+        // All connected checked = store empty, so newly connected screens are included too
+        let allChecked = enabledScreenIDs == Set(connectedScreens.map(\.stableID))
+        UserDefaults.standard.set(allChecked ? [] : Array(enabledScreenIDs), forKey: "enabledScreenIDs")
+    }
+
     private func loadSettings() {
         let ids = UserDefaults.standard.stringArray(forKey: "enabledCalendarIDs") ?? []
         enabledCalendarIDs = Set(ids)
+        connectedScreens = NSScreen.screens
+        enabledScreenIDs = Set(UserDefaults.standard.stringArray(forKey: "enabledScreenIDs") ?? [])
 
         if #available(macOS 13.0, *) {
             launchAtLogin = SMAppService.mainApp.status == .enabled

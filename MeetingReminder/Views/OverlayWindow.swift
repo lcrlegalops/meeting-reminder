@@ -9,7 +9,7 @@ final class OverlayWindowController {
               onRemindOnTime: @escaping () -> Void) {
         close()
 
-        for screen in NSScreen.screens {
+        for screen in targetScreens() {
             let panel = NSPanel(
                 contentRect: screen.frame,
                 styleMask: [.borderless, .nonactivatingPanel],
@@ -63,5 +63,30 @@ final class OverlayWindowController {
             panel.orderOut(nil)
         }
         panels.removeAll()
+    }
+
+    /// Screens selected in Settings. Empty selection = all screens.
+    /// Falls back to all screens if no selected screen is connected.
+    private func targetScreens() -> [NSScreen] {
+        let ids = Set(UserDefaults.standard.stringArray(forKey: "enabledScreenIDs") ?? [])
+        guard !ids.isEmpty else { return NSScreen.screens }
+        let selected = NSScreen.screens.filter { ids.contains($0.stableID) }
+        return selected.isEmpty ? NSScreen.screens : selected
+    }
+}
+
+extension NSScreen {
+    var displayID: CGDirectDisplayID? {
+        deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
+    }
+
+    /// Display UUID — stable across reboots and reconnects, unlike the raw display ID.
+    var stableID: String {
+        guard let displayID else { return localizedName }
+        if let uuid = CGDisplayCreateUUIDFromDisplayID(displayID)?.takeRetainedValue(),
+           let string = CFUUIDCreateString(nil, uuid) {
+            return string as String
+        }
+        return "\(displayID)"
     }
 }
