@@ -3,7 +3,7 @@ import EventKit
 import Foundation
 
 @MainActor
-final class CalendarService: ObservableObject {
+final class CalendarService: ObservableObject, CalendarServiceProtocol {
     @Published var events: [MeetingEvent] = []
     @Published var authorizationStatus: EKAuthorizationStatus = .notDetermined
     @Published var availableCalendars: [EKCalendar] = []
@@ -71,7 +71,14 @@ final class CalendarService: ObservableObject {
             UserDefaults.standard.stringArray(forKey: "enabledCalendarIDs") ?? []
         )
 
-        let calendarEvents = ekEvents
+        let defaults = UserDefaults.standard
+        let meetingsOnly = defaults.bool(forKey: ReminderFilter.meetingsOnlyKey)
+        let skipFree = defaults.bool(forKey: ReminderFilter.skipFreeEventsKey)
+        let excludedKeywords = ReminderFilter.parseKeywords(
+            defaults.string(forKey: ReminderFilter.excludedKeywordsKey) ?? ""
+        )
+
+        let realEvents = ekEvents
             .filter { event in
                 guard !event.isAllDay else { return false }
 
@@ -90,10 +97,24 @@ final class CalendarService: ObservableObject {
             .map { ekEvent -> MeetingEvent in
                 let videoLink = VideoLinkDetector.detectLink(in: ekEvent)
                 let isTask = VideoLinkDetector.isGoogleTask(ekEvent)
-                return MeetingEvent(from: ekEvent, videoLink: videoLink, isTask: isTask)
+                let otherAttendeeCount = (ekEvent.attendees ?? []).filter {
+                    !$0.isCurrentUser && $0.participantType != .room && $0.participantType != .resource
+                }.count
+                let triggersReminder = ReminderFilter.triggersReminder(
+                    title: ekEvent.title ?? "",
+                    hasVideoLink: videoLink != nil,
+                    otherAttendeeCount: otherAttendeeCount,
+                    isFree: ekEvent.availability == .free,
+                    meetingsOnly: meetingsOnly,
+                    skipFree: skipFree,
+                    excludedKeywords: excludedKeywords
+                )
+                return MeetingEvent(from: ekEvent, videoLink: videoLink, isTask: isTask,
+                                    triggersReminder: triggersReminder)
             }
 
-        events = calendarEvents.sorted { $0.startDate < $1.startDate }
+        events = (realEvents + WorkingHoursEvents.synthesize(for: now))
+            .sorted { $0.startDate < $1.startDate }
 
         availableCalendars = eventStore.calendars(for: .event)
             .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }

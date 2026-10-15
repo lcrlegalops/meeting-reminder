@@ -13,6 +13,15 @@ struct MenuBarView: View {
         calendarService.events.filter { $0.timeUntilStart > -300 }
     }
 
+    // Captures everything that affects the popover's height. Changing this forces SwiftUI to
+    // rebuild the hosted view so the MenuBarExtra(.window) NSPanel re-measures its content
+    // size, otherwise dynamic content changes get clipped top & bottom until an app restart.
+    private var contentSignature: String {
+        if calendarService.authorizationStatus != .authorized { return "access" }
+        let count = min(upcomingEvents.count, 8)
+        return count == 0 ? "empty" : "list-\(count)"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if calendarService.authorizationStatus != .authorized {
@@ -43,6 +52,8 @@ struct MenuBarView: View {
         }
         .padding(12)
         .frame(width: 300)
+        .fixedSize(horizontal: false, vertical: true)
+        .id(contentSignature)
     }
 
     // MARK: - Sections
@@ -85,7 +96,7 @@ struct MenuBarView: View {
     }
 
     private var eventListSection: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Up Next")
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -94,7 +105,7 @@ struct MenuBarView: View {
             ForEach(upcomingEvents.prefix(8)) { event in
                 eventRow(event)
                 if event.id != upcomingEvents.prefix(8).last?.id {
-                    Divider().padding(.vertical, 2)
+                    Divider().padding(.vertical, 3)
                 }
             }
         }
@@ -136,7 +147,7 @@ struct MenuBarView: View {
             Spacer()
 
             HStack(spacing: 6) {
-                // Bell: shown when reminder is active for this type
+                // Bell: shown when an overlay will fire for this event
                 if isMonitored(event) {
                     Image(systemName: "bell.fill")
                         .font(.system(size: 9))
@@ -146,18 +157,21 @@ struct MenuBarView: View {
                 // Join button for meetings
                 if let url = event.videoLink, url.scheme == "https" || url.scheme == "http" {
                     Button {
-                        NSWorkspace.shared.open(url)
+                        VideoLinkDetector.openMeetingURL(url)
                     } label: {
                         Image(systemName: "video.fill")
-                            .font(.system(size: 11))
+                            .font(.system(size: 12))
                             .foregroundColor(.accentColor)
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.borderless)
                     .help("Join \(VideoLinkDetector.serviceName(for: url))")
+                    .accessibilityLabel("Join \(VideoLinkDetector.serviceName(for: url))")
                 }
             }
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 4)
     }
 
     // MARK: - Helpers
@@ -167,14 +181,18 @@ struct MenuBarView: View {
         case .meeting:     return .blue
         case .appointment: return .purple
         case .task:        return .orange
+        case .workingHours: return .green
         }
     }
 
+    // Mirrors MeetingMonitor.shouldRemind, but reads @AppStorage so the bell updates live
     private func isMonitored(_ event: MeetingEvent) -> Bool {
+        guard event.triggersReminder else { return false }
         switch event.type {
-        case .meeting:     return showMeetings
-        case .appointment: return showAppointments
-        case .task:        return showTasks
+        case .meeting:      return showMeetings
+        case .appointment:  return showAppointments
+        case .task:         return showTasks
+        case .workingHours: return true
         }
     }
 }

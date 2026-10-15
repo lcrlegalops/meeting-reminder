@@ -32,7 +32,7 @@ MeetingReminder/
 │   ├── MenuBarView.swift           # Window-style popover: event list, preferences button, quit
 │   ├── OverlayWindow.swift         # NSPanel at .screenSaver level, covers selected screens (enabledScreenIDs)
 │   ├── OverlayView.swift           # Full-screen SwiftUI: title, countdown, Join/Snooze/Dismiss buttons
-│   └── SettingsView.swift          # Tabs: General, Appearance (overlay backgrounds), Displays, Event Types, Calendars, Test (preview overlay)
+│   └── SettingsView.swift          # Tabs: General (incl. Test), Appearance (backgrounds + Displays), Event Types (incl. Free/keyword filters), Working Hours, Focus, Calendars
 ├── Resources/Assets.xcassets       # App icon (generated via generate_icon.py)
 ├── Info.plist                      # LSUIElement=true (no Dock icon), calendar usage descriptions
 └── MeetingReminder.entitlements    # App sandbox + calendar access
@@ -54,8 +54,17 @@ MeetingReminder/
 | `reminderMinutes` | Int | 5 | Minutes before meeting to show overlay |
 | `soundEnabled` | Bool | true | Play alert sound with overlay |
 | `overlayBackground` | String | "dark" | Background style (dark/blue/purple/gradient/red/green/nightOcean/electric/cyber) |
+| `requireAction` | Bool | false | Hide Snooze button, forcing Join or Dismiss |
 | `enabledCalendarIDs` | [String] | [] | Calendar IDs to monitor (empty = all) |
 | `enabledScreenIDs` | [String] | [] | Display UUIDs that show the overlay (empty or none connected = all) |
+| `showMeetings` / `showAppointments` / `showTasks` | Bool | true | Event Types: which event types fire an overlay |
+| `workingHoursEnabled` | Bool | false | Inject synthetic start/end-of-workday events |
+| `workingHoursStartMinutes` | Int | 540 (09:00) | Start of working hours, minutes since midnight |
+| `workingHoursEndMinutes` | Int | 1020 (17:00) | End of working hours, minutes since midnight |
+| `workingHoursDays` | Int (bitmask) | 62 (Mon–Fri) | Days the synthetic events fire; bit 0 = Sunday |
+| `meetingsOnly` | Bool | false | Upstream setting, not exposed in this fork's UI (covered by Event Types) |
+| `skipFreeEvents` | Bool | false | Don't remind for events whose availability is Free |
+| `excludedTitleKeywords` | String | "" | Comma-separated; events whose title contains any keyword don't remind |
 
 ## Icon Generation
 

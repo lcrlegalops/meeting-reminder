@@ -13,5 +13,9 @@ MeetingReminder.app/
 MeetingReminder.xcodeproj/project.xcworkspace/xcshareddata/
 MeetingReminder.xcodeproj/project.xcworkspace/contents.xcworkspacedata
 
+# Local Git worktrees
+.worktrees/
+
 # Icon generation
 __pycache__/
+.dmg

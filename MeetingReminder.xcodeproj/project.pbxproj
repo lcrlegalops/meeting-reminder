@@ -12,15 +12,22 @@
 		A1000003 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000003 /* CalendarService.swift */; };
 		A1000004 /* MeetingMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004 /* MeetingMonitor.swift */; };
 		A1000005 /* VideoLinkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000005 /* VideoLinkDetector.swift */; };
+		A100000E /* WorkingHoursEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000E /* WorkingHoursEvents.swift */; };
 		A1000006 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000006 /* MenuBarView.swift */; };
 		A1000007 /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000007 /* OverlayWindow.swift */; };
 		A1000008 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000008 /* OverlayView.swift */; };
 		A1000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000009 /* SettingsView.swift */; };
+		A1000010 /* FocusCountdownService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000010 /* FocusCountdownService.swift */; };
+		A1000011 /* FocusCountdownWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011 /* FocusCountdownWindow.swift */; };
+		A1000012 /* ReminderFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012 /* ReminderFilter.swift */; };
 		A100000A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B100000A /* Assets.xcassets */; };
 		T2000001 /* VideoLinkDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000001 /* VideoLinkDetectorTests.swift */; };
 		T2000002 /* MeetingEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000002 /* MeetingEventTests.swift */; };
 		T2000003 /* OverlayBackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000003 /* OverlayBackgroundTests.swift */; };
 		T2000004 /* ClampedExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000004 /* ClampedExtensionTests.swift */; };
+		T2000005 /* MeetingMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000005 /* MeetingMonitorTests.swift */; };
+		T2000006 /* MeetingMonitorPreviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000006 /* MeetingMonitorPreviewTests.swift */; };
+		T2000007 /* ReminderFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T1000007 /* ReminderFilterTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,10 +46,14 @@
 		B1000003 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		B1000004 /* MeetingMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMonitor.swift; sourceTree = "<group>"; };
 		B1000005 /* VideoLinkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLinkDetector.swift; sourceTree = "<group>"; };
+		B100000E /* WorkingHoursEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkingHoursEvents.swift; sourceTree = "<group>"; };
 		B1000006 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		B1000007 /* OverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindow.swift; sourceTree = "<group>"; };
 		B1000008 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		B1000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B1000010 /* FocusCountdownService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCountdownService.swift; sourceTree = "<group>"; };
+		B1000011 /* FocusCountdownWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCountdownWindow.swift; sourceTree = "<group>"; };
+		B1000012 /* ReminderFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderFilter.swift; sourceTree = "<group>"; };
 		B100000A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B100000B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B100000C /* MeetingReminder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MeetingReminder.entitlements; sourceTree = "<group>"; };
@@ -51,6 +62,9 @@
 		T1000002 /* MeetingEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingEventTests.swift; sourceTree = "<group>"; };
 		T1000003 /* OverlayBackgroundTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayBackgroundTests.swift; sourceTree = "<group>"; };
 		T1000004 /* ClampedExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClampedExtensionTests.swift; sourceTree = "<group>"; };
+		T1000005 /* MeetingMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMonitorTests.swift; sourceTree = "<group>"; };
+		T1000006 /* MeetingMonitorPreviewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingMonitorPreviewTests.swift; sourceTree = "<group>"; };
+		T1000007 /* ReminderFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderFilterTests.swift; sourceTree = "<group>"; };
 		T3000001 /* MeetingReminderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingReminderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -109,6 +123,9 @@
 				B1000003 /* CalendarService.swift */,
 				B1000004 /* MeetingMonitor.swift */,
 				B1000005 /* VideoLinkDetector.swift */,
+				B100000E /* WorkingHoursEvents.swift */,
+				B1000012 /* ReminderFilter.swift */,
+				B1000010 /* FocusCountdownService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -120,6 +137,7 @@
 				B1000007 /* OverlayWindow.swift */,
 				B1000008 /* OverlayView.swift */,
 				B1000009 /* SettingsView.swift */,
+				B1000011 /* FocusCountdownWindow.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -148,6 +166,9 @@
 				T1000002 /* MeetingEventTests.swift */,
 				T1000003 /* OverlayBackgroundTests.swift */,
 				T1000004 /* ClampedExtensionTests.swift */,
+				T1000005 /* MeetingMonitorTests.swift */,
+				T1000006 /* MeetingMonitorPreviewTests.swift */,
+				T1000007 /* ReminderFilterTests.swift */,
 			);
 			path = MeetingReminderTests;
 			sourceTree = "<group>";
@@ -239,10 +260,14 @@
 				A1000003 /* CalendarService.swift in Sources */,
 				A1000004 /* MeetingMonitor.swift in Sources */,
 				A1000005 /* VideoLinkDetector.swift in Sources */,
+				A100000E /* WorkingHoursEvents.swift in Sources */,
+				A1000012 /* ReminderFilter.swift in Sources */,
 				A1000006 /* MenuBarView.swift in Sources */,
 				A1000007 /* OverlayWindow.swift in Sources */,
 				A1000008 /* OverlayView.swift in Sources */,
 				A1000009 /* SettingsView.swift in Sources */,
+				A1000010 /* FocusCountdownService.swift in Sources */,
+				A1000011 /* FocusCountdownWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +279,9 @@
 				T2000002 /* MeetingEventTests.swift in Sources */,
 				T2000003 /* OverlayBackgroundTests.swift in Sources */,
 				T2000004 /* ClampedExtensionTests.swift in Sources */,
+				T2000005 /* MeetingMonitorTests.swift in Sources */,
+				T2000006 /* MeetingMonitorPreviewTests.swift in Sources */,
+				T2000007 /* ReminderFilterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

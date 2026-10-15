@@ -4,7 +4,8 @@ import Foundation
 enum MeetingEventType: String {
     case meeting     // EKEvent with a detected video link (Zoom, Meet, etc.)
     case appointment // EKEvent without a video link
-    case task        // EKReminder (Google Tasks, Apple Reminders)
+    case task        // Google Tasks (synced as EKEvent via Google Calendar)
+    case workingHours // Synthesized start/end of work day (see WorkingHoursEvents)
 }
 
 struct MeetingEvent: Identifiable, Equatable {
@@ -17,6 +18,8 @@ struct MeetingEvent: Identifiable, Equatable {
     let videoLink: URL?
     let isAllDay: Bool
     let type: MeetingEventType
+    /// False for events the user asked not to be reminded about (see `ReminderFilter`).
+    let triggersReminder: Bool
 
     var timeUntilStart: TimeInterval {
         startDate.timeIntervalSinceNow
@@ -64,7 +67,7 @@ struct MeetingEvent: Identifiable, Equatable {
         lhs.id == rhs.id
     }
 
-    init(from ekEvent: EKEvent, videoLink: URL?, isTask: Bool = false) {
+    init(from ekEvent: EKEvent, videoLink: URL?, isTask: Bool = false, triggersReminder: Bool = true) {
         // Use eventIdentifier + startDate to uniquely identify recurring event occurrences
         let baseID = ekEvent.eventIdentifier ?? UUID().uuidString
         let dateStamp = ISO8601DateFormatter().string(from: ekEvent.startDate)
@@ -81,12 +84,14 @@ struct MeetingEvent: Identifiable, Equatable {
         } else {
             self.type = videoLink != nil ? .meeting : .appointment
         }
+        self.triggersReminder = triggersReminder
     }
 
     init(id: String, title: String, startDate: Date, endDate: Date,
          calendar: String, calendarColor: String = "",
          videoLink: URL? = nil, isAllDay: Bool = false,
-         type: MeetingEventType = .appointment) {
+         type: MeetingEventType = .appointment,
+         triggersReminder: Bool = true) {
         self.id = id
         self.title = title
         self.startDate = startDate
@@ -96,5 +101,6 @@ struct MeetingEvent: Identifiable, Equatable {
         self.videoLink = videoLink
         self.isAllDay = isAllDay
         self.type = type
+        self.triggersReminder = triggersReminder
     }
 }
