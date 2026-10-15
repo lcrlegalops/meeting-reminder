@@ -17,6 +17,16 @@ struct MeetingReminderApp: App {
         _meetingMonitor = StateObject(wrappedValue: monitor)
         _overlayCoordinator = StateObject(wrappedValue: coordinator)
         _focusCountdownCoordinator = StateObject(wrappedValue: focusCountdown)
+
+        // Start at launch, not in MenuBarView.onAppear: the .window-style MenuBarExtra
+        // only builds its content when the menu bar icon is first clicked, so reminders
+        // would never fire after login until the user opened the popover.
+        Task { @MainActor in
+            await calendar.requestAccess()
+            monitor.start()
+            coordinator.startObserving()
+            focusCountdown.start()
+        }
     }
 
     var body: some Scene {
@@ -25,14 +35,6 @@ struct MeetingReminderApp: App {
                 calendarService: calendarService,
                 meetingMonitor: meetingMonitor
             )
-            .onAppear {
-                Task {
-                    await calendarService.requestAccess()
-                    meetingMonitor.start()
-                    overlayCoordinator.startObserving()
-                    focusCountdownCoordinator.start()
-                }
-            }
         } label: {
             Label("Meeting Reminder", systemImage: "calendar.badge.clock")
         }
