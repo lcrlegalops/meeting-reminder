@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var enabledCalendarIDs: Set<String> = []
     @State private var connectedScreens: [NSScreen] = []
     @State private var enabledScreenIDs: Set<String> = []
+    @State private var testOverlay = OverlayWindowController()
 
     var body: some View {
         TabView {
@@ -41,6 +42,11 @@ struct SettingsView: View {
             calendarsTab
                 .tabItem {
                     Label("Calendars", systemImage: "calendar")
+                }
+
+            testTab
+                .tabItem {
+                    Label("Test", systemImage: "play.rectangle")
                 }
         }
         .frame(width: 460, height: 420)
@@ -231,6 +237,45 @@ struct SettingsView: View {
                 .foregroundColor(.secondary)
         }
         .padding()
+    }
+
+    private var testTab: some View {
+        VStack(spacing: 16) {
+            Text("Show the reminder overlay for a sample meeting, using your current background, display and sound settings.")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+
+            Button("Show Test Reminder") {
+                showTestOverlay()
+            }
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+
+            Text("Any button on the overlay closes it. Join does not open a link.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    private func showTestOverlay() {
+        let start = Date().addingTimeInterval(TimeInterval(max(reminderMinutes, 1) * 60))
+        let event = MeetingEvent(
+            id: "test-\(UUID().uuidString)",
+            title: "Test Meeting",
+            startDate: start,
+            endDate: start.addingTimeInterval(30 * 60),
+            calendar: "Test",
+            videoLink: URL(string: "https://meet.google.com/"),
+            type: .meeting
+        )
+        let close = { [testOverlay] in testOverlay.close() }
+        testOverlay.show(event: event, onDismiss: close, onSnooze: close,
+                         onJoin: close, onRemindOnTime: close)
+        if soundEnabled {
+            NSSound.beep()
+        }
     }
 
     private func binding(for calendarID: String) -> Binding<Bool> {

@@ -32,7 +32,7 @@ MeetingReminder/
 │   ├── MenuBarView.swift           # Window-style popover: event list, preferences button, quit
 │   ├── OverlayWindow.swift         # NSPanel at .screenSaver level, covers selected screens (enabledScreenIDs)
 │   ├── OverlayView.swift           # Full-screen SwiftUI: title, countdown, Join/Snooze/Dismiss buttons
-│   └── SettingsView.swift          # Tabs: General, Appearance (overlay backgrounds), Displays, Event Types, Calendars
+│   └── SettingsView.swift          # Tabs: General, Appearance (overlay backgrounds), Displays, Event Types, Calendars, Test (preview overlay)
 ├── Resources/Assets.xcassets       # App icon (generated via generate_icon.py)
 ├── Info.plist                      # LSUIElement=true (no Dock icon), calendar usage descriptions
 └── MeetingReminder.entitlements    # App sandbox + calendar access
